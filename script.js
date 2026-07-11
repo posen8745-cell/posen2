@@ -149,6 +149,78 @@
     }
   }
 
+  function initRandomDog() {
+    const DOG_API = "https://dog.ceo/api/breeds/image/random";
+    const btn = document.getElementById("random-dog-btn");
+    const display = document.getElementById("dog-display");
+    if (!btn || !display) return;
+
+    function setLoading(isLoading) {
+      btn.disabled = isLoading;
+      btn.setAttribute("aria-busy", String(isLoading));
+      display.setAttribute("aria-busy", String(isLoading));
+      display.classList.toggle("is-loading", isLoading);
+
+      if (isLoading) {
+        display.innerHTML =
+          '<div class="dog-display__loading" role="status">' +
+          '<span class="dog-display__spinner" aria-hidden="true"></span>' +
+          "<span>載入中…</span></div>";
+      }
+    }
+
+    function clearLoading() {
+      btn.disabled = false;
+      btn.setAttribute("aria-busy", "false");
+      display.setAttribute("aria-busy", "false");
+      display.classList.remove("is-loading");
+    }
+
+    function showError(message) {
+      clearLoading();
+      display.innerHTML =
+        '<p class="dog-display__error" role="alert">' + message + "</p>";
+    }
+
+    function showImage(url) {
+      const img = new Image();
+      img.className = "dog-display__img";
+      img.alt = "隨機狗狗照片";
+      img.decoding = "async";
+
+      img.addEventListener("load", function () {
+        clearLoading();
+        display.innerHTML = "";
+        display.appendChild(img);
+      });
+
+      img.addEventListener("error", function () {
+        showError("圖片載入失敗，請再試一次。");
+      });
+
+      img.src = url;
+    }
+
+    btn.addEventListener("click", function () {
+      setLoading(true);
+
+      fetch(DOG_API)
+        .then(function (res) {
+          if (!res.ok) throw new Error("API 回應失敗");
+          return res.json();
+        })
+        .then(function (data) {
+          if (data.status !== "success" || !data.message) {
+            throw new Error("無法取得圖片網址");
+          }
+          showImage(data.message);
+        })
+        .catch(function () {
+          showError("取得圖片失敗，請稍後再試。");
+        });
+    });
+  }
+
   function initCopyEmail() {
     const copyBtn = document.getElementById("copy-email");
     const emailLink = document.getElementById("footer-email");
@@ -185,5 +257,6 @@
     initReveal();
     initYear();
     initCopyEmail();
+    initRandomDog();
   });
 })();
