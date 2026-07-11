@@ -149,6 +149,32 @@
     }
   }
 
+  function initCopyEmail() {
+    const copyBtn = document.getElementById("copy-email");
+    const emailLink = document.getElementById("footer-email");
+    if (!copyBtn || !emailLink) return;
+
+    copyBtn.addEventListener("click", function () {
+      const email = emailLink.textContent.trim();
+      if (!email) return;
+
+      function showCopied() {
+        copyBtn.textContent = "已複製";
+        copyBtn.classList.add("is-copied");
+        window.setTimeout(function () {
+          copyBtn.textContent = "複製";
+          copyBtn.classList.remove("is-copied");
+        }, 2000);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(showCopied).catch(function () {
+          /* ignore */
+        });
+      }
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initTheme();
     if (themeToggle) {
@@ -158,5 +184,6 @@
     initSmoothScroll();
     initReveal();
     initYear();
+    initCopyEmail();
   });
 })();
